@@ -1,48 +1,53 @@
-// import logo from './logo.svg';
 import './App.css';
-import React, { Component } from 'react';
-import img from "./me.jpg";
+import React, { useState } from 'react';
 
-class App extends Component {
-  state = {
-    person: {
-      fullName: 'Oso Moyinoluwa OluwaTosin',
-      Bio : 'I am a developer',
-      imgSrc: img , 
-      Profession : 'Full Stack Developer',
-    },
-    Show: 'false',
-    timeInterval: 0,
+
+const App = () => {
+  const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState('all');
+
+  const addTask = (newTask) => {
+    setTasks([...tasks, newTask]);
   };
 
-  componentDidMount () {
-    this.interval=setInterval (
-      () => this.setState({ timeInterval: this.state.timeInterval + 1 }),
-      1000
-      );
-  }
-  componentWillUnmount () {
-    clearInterval (this.interval);
-  }
-  handleToggle = () => {
-    this.setState({shows: !this.state.shows});
-  };
-  render() {
-    return (
-      <div className='App'>
-        <button className='btn' onClick={this.handleToggle}>Click Me</button>
-        {this.state.shows && (
-          <div>
-            <h1>{this.state.person.fullName}</h1>
-            <h3>{this.state.person.Bio}</h3>
-            <img src={this.state.person.imgSrc} alt="Profile" style={{width:'350px'}} />
-            <p>{this.state.person.Profession}</p>
-          </div>
-        )}
-        <p>Time since mount: {this.state.timeInterval} seconds</p>
-      </div>
+  const toggleTask = (taskId) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, isDone: !task.isDone } : task
+      )
     );
-  }
-}
+  };
+
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === 'done') {
+      return task.isDone;
+    } else if (filter === 'not-done') {
+      return !task.isDone;
+    } else {
+      return true;
+    }
+  });
+
+  return (
+    <div>
+      <h1>Task Manager</h1>
+      <AddTask onAddTask={addTask} />
+      <div>
+        <button onClick={() => setFilter('all')}>All</button>
+        <button onClick={() => setFilter('done')}>Done</button>
+        <button onClick={() => setFilter('not-done')}>Not Done</button>
+      </div>
+      <ListTask
+        tasks={filteredTasks}
+        onToggleTask={toggleTask}
+        onDeleteTask={deleteTask}
+      />
+    </div>
+  );
+};
 
 export default App;
